@@ -7,11 +7,6 @@ on:
 jobs:
   export-docker:
     runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -26,11 +21,12 @@ jobs:
         with:
           context: .
           file: ./Dockerfile.focal
-          push: true
-          tags: localhost:5000/test/lambdastack:latest
+          load: true
+          tags: lambdastack:latest
       - name: Inspect
         run: |
-          docker buildx imagetools inspect localhost:5000/test/lambdastack:latest
+          docker image list
+          docker image info lambdastack:latest
 
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -66,4 +62,4 @@ jobs:
         env:
           OUTPUT_CONTAINER: lambdastack.sif
         run: |
-          singularity build lambdastack.sif localhost:5000/test/:lambdastack:latest
+          singularity build lambdastack.sif docker-daemon/lambdastack:latest
