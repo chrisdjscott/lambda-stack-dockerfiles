@@ -5,7 +5,7 @@ on:
     branches: actions
 
 jobs:
-  export-docker:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,7 +15,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
-          driver-opts: network=host
+          driver: docker
       - name: Build Docker image and push to local registry
         uses: docker/build-push-action@v2
         with:
@@ -26,7 +26,7 @@ jobs:
       - name: Inspect
         run: |
           docker image list
-          docker image info lambdastack:latest
+          docker image inspect lambdastack:latest
 
       - name: Set up Go 1.15
         uses: actions/setup-go@v1
@@ -62,4 +62,6 @@ jobs:
         env:
           OUTPUT_CONTAINER: lambdastack.sif
         run: |
-          singularity build lambdastack.sif docker-daemon/lambdastack:latest
+          type singularity
+          singularity build lambdastack.sif docker-daemon:lambdastack:latest
+          ls -l
