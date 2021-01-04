@@ -11,4 +11,30 @@ jobs:
         - docker build -t lambda-stack:20.04 -f Dockerfile.focal .
         - docker images
         - df -h
-        - go --version
+    - stage: install singularity deps
+      script:
+        - apt-get update
+        - apt-get install -y build-essential libssl-dev uuid-dev libgpgme11-dev squashfs-tools libseccomp-dev pkg-config
+    - stage: build singularity
+      scripts:
+        - df -h
+        - go version
+        - echo "GOPATH = ${GOPATH}"
+        - export GOPATH=${HOME}/go
+        - export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin
+        - echo "GOPATH = ${GOPATH}"
+        - echo "PATH = ${PATH}"
+        - go get -u github.com/golang/dep/cmd/dep
+        - go get -d github.com/sylabs/singularity
+        - export VERSION=3.7.0
+        - cd $GOPATH/src/github.com/sylabs/singularity
+        - git fetch
+        - git checkout $VERSION
+        - ./mconfig
+        - make -C ./builddir
+        - make -C ./builddir install
+        - type singularity
+        - singularity --version
+        - singularity build lambda-stack-focal-$(date +%Y%m%d).sif docker-daemon:lambda-stack:20.04
+        - ls -lh
+        - df -h
