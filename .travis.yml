@@ -1,0 +1,14 @@
+arch: amd64
+os: linux
+dist: focal
+language: go
+
+jobs:
+  include:
+    - stage: build docker image
+      script:
+        - df -h
+        - docker build -t lambda-stack:20.04 -f Dockerfile.focal .
+        - docker images
+        - df -h
+        - go --version
