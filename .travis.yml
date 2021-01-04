@@ -9,39 +9,41 @@ go:
 env:
   - SINGULARITY_VERSION=3.7.0
 
-jobs:
-  include:
-    - stage: prepare to build singularity image
-      name: build docker image
-      script:
-        - df -h
-        - docker build -t lambda-stack:20.04 -f Dockerfile.focal .
-        - docker images
-        - df -h
-    - name: build singularity
-      script:
-        - type singularity || true
-        - sudo apt-get update
-        - sudo apt-get install -y build-essential libssl-dev uuid-dev libgpgme11-dev squashfs-tools libseccomp-dev pkg-config
-        - df -h
-        - type go
-        - go version
-        - echo "GOPATH = ${GOPATH}"
-        - echo "PATH = ${PATH}"
-        - go get -u github.com/golang/dep/cmd/dep
-        - mkdir -p $GOPATH/src/github.com/sylabs
-        - cd $GOPATH/src/github.com/sylabs
-        - wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz
-        - tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz
-        - cd ./singularity
-        - ./mconfig
-        - make -C ./builddir
-        - sudo make -C ./builddir install
-        - type singularity
-        - singularity --version
-    - stage: build singularity image
-      script:
-        - df -h
-        - sudo singularity build lambda-stack-focal-$(date +%Y%m%d).sif docker-daemon:lambda-stack:20.04
-        - ls -lh
-        - df -h
+install:
+  - pwd
+  - df -h
+  - docker build -t lambda-stack:20.04 -f Dockerfile.focal .
+  - docker images
+  - df -h
+
+before_script:
+  - pwd
+  - sudo apt-get update
+  - sudo apt-get install -y build-essential libssl-dev uuid-dev libgpgme11-dev squashfs-tools libseccomp-dev pkg-config
+  - df -h
+  - type go
+  - go version
+  - echo "GOPATH = ${GOPATH}"
+  - echo "PATH = ${PATH}"
+  - go get -u github.com/golang/dep/cmd/dep
+  - mkdir -p $GOPATH/src/github.com/sylabs
+  - startdir=$PWD
+  - cd $GOPATH/src/github.com/sylabs
+  - wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz
+  - tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz
+  - cd ./singularity
+  - ./mconfig
+  - make -C ./builddir
+  - sudo make -C ./builddir install
+  - type singularity
+  - singularity --version
+  - df -h
+  - cd $startdir
+
+script:
+  - pwd
+  - df -h
+  - export SIF=${PWD}/lambda-stack-focal-$(date +%Y%m%d).sif
+  - sudo singularity build ${SIF} docker-daemon:lambda-stack:20.04
+  - ls -lh
+  - df -h
