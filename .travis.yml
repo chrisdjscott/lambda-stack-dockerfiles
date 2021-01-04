@@ -3,6 +3,9 @@ os: linux
 dist: focal
 language: go
 
+env:
+  - SINGULARITY_VERSION=3.7.0
+
 jobs:
   include:
     - stage: prepare to build singularity image
@@ -28,7 +31,7 @@ jobs:
         - mkdir -p $GOPATH/src/github.com/sylabs
         - cd $GOPATH/src/github.com/sylabs
         - wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
-        - tar -xzf singularity-${VERSION}.tar.gz
+        - tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz
         - cd ./singularity
         - ./mconfig
         - make -C ./builddir
