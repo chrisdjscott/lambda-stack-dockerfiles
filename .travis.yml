@@ -38,6 +38,6 @@ before_script:
 script:
   - df -h
   - export SIF=${PWD}/lambda-stack-focal-$(date +%Y%m%d).sif
-  - travis_wait 30 sudo singularity build ${SIF} docker-daemon:lambda-stack:20.04
+  - travis_wait 60 sudo singularity -v build ${SIF} docker-daemon:lambda-stack:20.04
   - ls -lh
   - df -h
