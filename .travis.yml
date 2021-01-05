@@ -10,18 +10,14 @@ env:
   - SINGULARITY_VERSION=3.7.0
 
 install:
-  - pwd
   - df -h
   - docker build -t lambda-stack:20.04 -f Dockerfile.focal .
   - docker images
   - df -h
 
 before_script:
-  - pwd
   - sudo apt-get update
   - sudo apt-get install -y build-essential libssl-dev uuid-dev libgpgme11-dev squashfs-tools libseccomp-dev pkg-config
-  - df -h
-  - type go
   - go version
   - echo "GOPATH = ${GOPATH}"
   - echo "PATH = ${PATH}"
@@ -37,13 +33,11 @@ before_script:
   - sudo make -C ./builddir install
   - type singularity
   - singularity --version
-  - df -h
   - cd $startdir
 
 script:
-  - pwd
   - df -h
   - export SIF=${PWD}/lambda-stack-focal-$(date +%Y%m%d).sif
-  - sudo singularity build ${SIF} docker-daemon:lambda-stack:20.04
+  - travis_wait 30 sudo singularity build ${SIF} docker-daemon:lambda-stack:20.04
   - ls -lh
   - df -h
